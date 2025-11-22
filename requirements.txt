@@ -1,1 +1,5 @@
 pytest
+pytest-cov
+pytest-xdist
+pytest-mock
+python-dotenv
