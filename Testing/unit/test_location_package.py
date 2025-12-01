@@ -268,6 +268,7 @@ class TestLocation:
         #arrange
         zone_pattern: str = f'{zone}0%'
         shelf_pattern: str = f'{zone}01-%'
+        correct_category = True
 
         #act
         aisles = self.db.cursor.execute(
@@ -286,10 +287,23 @@ class TestLocation:
             """,
             (shelf_pattern, )
         ).fetchall()
+        is_occupied = self.db.cursor.execute(
+            """
+            SELECT is_occupied
+            FROM Locations
+            WHERE zone = ?
+            """,
+            (zone, )
+        
+        ).fetchall()
+        for i in is_occupied:
+            if i[0] not in [0, 1]:
+                correct_category = False
         total_aisles: int = len(aisles) // 4
         total_shelfs: int = len(shelfs)
 
         #assert
         assert total_aisles == 5
         assert total_shelfs == 4
+        assert correct_category == True
     
