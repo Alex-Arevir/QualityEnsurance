@@ -1,6 +1,7 @@
 import sqlite3
 import random
 import string
+from validator_service import Validator as vs
 from datetime import datetime
 from typing import Optional, List, Tuple
 import os
@@ -199,6 +200,30 @@ class PackageManager:
                         priority: str) -> bool:
         """Register a new package in the system."""
         try:
+            barcode_length = len(barcode)
+            if barcode_length < 12 or barcode_length > 12:
+                print(f"Error: Barcode must be only 12 characters")
+                return False
+
+            if not barcode.isdigit():
+                print(f"Error: Barcode must be only numeric")
+                return False
+
+            valid_numeric_parameters = vs.valid_numeric_type(weight, length, width, height)
+            if not valid_numeric_parameters:
+                print(f"Error: Invalid package parameters, must be only numbers")
+                return False
+
+            valid_parameters = vs.valid_big_to_zero(weight, length, width, height)
+            if not valid_parameters:
+                print(f"Error: invalid parameters, cant be equal or less to zero")
+                return False
+                
+            valid_destination = vs.valid_numeric_string(destination)
+            if valid_destination:
+                print(f"Error: destination cant be only numbers")
+                return False
+
             # Check if barcode already exists
             self.db.cursor.execute("""
                 SELECT barcode FROM Packages WHERE barcode = ?
@@ -225,7 +250,7 @@ class PackageManager:
                 INSERT INTO Packages 
                 (barcode, weight, length, width, height, destination, 
                  priority, category_id, location_id, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Stored')
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Received')
             """, (barcode, weight, length, width, height, destination, 
                   priority, category_id, location_id))
             
