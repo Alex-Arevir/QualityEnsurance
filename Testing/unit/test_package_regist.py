@@ -116,7 +116,7 @@ class TestPackageManager:
         destination: str = '1324423'
 
         # Act
-        result = self.manager.register_package(barcode, 0, 10, 10, 10, destination, 'Standard')
+        result = self.manager.register_package(barcode, 1, 10, 10, 10, destination, 'Standard')
         not_pkg = self.db.cursor.execute("SELECT barcode FROM Packages WHERE barcode=?", (barcode,)).fetchone()
 
         # Assert
